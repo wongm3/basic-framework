@@ -1,13 +1,12 @@
 var gulp = require('gulp');
-var sass = require('gulp-sass');
+var bump = require('gulp-bump');
 var cssnano = require('gulp-cssnano');
 var rename = require("gulp-rename");
+var sass = require('gulp-sass');
 var minimist = require('minimist');
 
 var argsv = minimist(process.argv.slice(2));
 var pkg = require('./package.json');
-
-gulp.task
 
 gulp.task('styles', function() {
   gulp.src('src/core.scss')
@@ -29,6 +28,19 @@ gulp.task('server', function () {
 });
 
 gulp.task('change-version', function () {
-  var changeVersion = require('./gulp/changeVersion');
-  changeVersion.main(argsv.oldVersion, argsv.newVersion);
+  var bumpConfig = {
+    indent: 2
+  };
+
+  if (argsv.version) {
+    bumpConfig.version = argsv.version;
+  }
+
+  if (argsv.type) {
+    bumpConfig.type = argsv.type;
+  }
+
+  gulp.src('package.json')
+    .pipe(bump(bumpConfig))
+    .pipe(gulp.dest('./'));
 });

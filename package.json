@@ -5,7 +5,10 @@
   "main": "server/basicFrameworkServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./node_modules/gulp/bin/gulp.js server"
+    "start": "./node_modules/gulp/bin/gulp.js server",
+    "hotfix": "./node_modules/gulp/bin/gulp.js change-version",
+    "major-release": "./node_modules/gulp/bin/gulp.js change-version --type major",
+    "minor-release": "./node_modules/gulp/bin/gulp.js change-version --type minor"
   },
   "author": "wongm3",
   "license": "ISC",
@@ -17,6 +20,7 @@
     "express": "^4.13.4",
     "fs": "0.0.2",
     "gulp": "^3.9.0",
+    "gulp-bump": "^1.0.0",
     "gulp-cssnano": "^2.1.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.1.1",
