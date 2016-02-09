@@ -1,80 +1,86 @@
+'use strict';
+
 var chalk = require('chalk');
 var express = require('express');
 var serverConfig = require('./server-config.json');
 
-var listener = null;
-var server = express();
-
 /**
- * Starts the application server.
+ * Constructor.
+ * @instance
+ * @public
  */
-function start(rootFolder, portNumber) {
-  var root = rootFolder || './docs';
+function BasicFrameworkServer() {
+  this.listener = null;
+  this.server = express();
+}
+
+BasicFrameworkServer.prototype.start = function(portNumber) {
   var port = portNumber || process.env.PORT || serverConfig.port;
 
-  server.set('port', port);
+  this.server.set('port', port);
 
-  server.use('/docs', express.static(root));
-  server.use('/dist', express.static('./dist'));
+  this.server.use('/docs', express.static('./docs'));
+  this.server.use('/dist', express.static('./dist'));
 
-  server.use(function (req, res) {
-    console.error(chalk.red.bold('Unable to resolve the following resource: ' + req.originalUrl));
-    res.status(404).send('Sorry cant find that!');
+  this.server.use(function (req, res) {
+    var message = '404 Not Found : ' + req.originalUrl.split('?')[0];
+    console.log(chalk.red.bold(new Date().toString() + ' :: ' + message));
+    res.status(404).send(message);
   });
 
   if (typeof port !== 'number') {
     port = parseInt(port, 10);
   }
 
-  listener = server.listen(port, function () {
+  this.listener = this.server.listen(port, function () {
     console.log(chalk.magenta.bold('Express server listening on port ' + port.toString() + '...'));
   });
-  listener.on('error', onError);
-}
+
+  var scope = this;
+  this.listener.on('error', function (error) {
+    scope._onError(error);
+  });
+};
 
 /**
  * Stop server.
  */
-function stop() {
-  if (!!listener) {
-    listener.close();
+BasicFrameworkServer.prototype.stop = function () {
+  if (this.listener) {
+    this.listener.close();
   } else {
     console.log(chalk.red.bold('Express server is not running'));
   }
-}
+};
 
 /**
  * Returns the port number for the server.
  */
-function getPort() {
+BasicFrameworkServer.prototype.getPort = function () {
   return server.get('port');
-}
+};
 
 /**
  * Handles server errors.
  */
-function onError(error) {
+BasicFrameworkServer.prototype._onError = function (error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(chalk.red.bold(getPort() + ' requires elevated privileges'));
+      console.log(chalk.red.bold(this.getPort() + ' requires elevated privileges'));
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(chalk.red.bold(getPort() + ' is already in use'));
+      console.log(chalk.red.bold(this.getPort() + ' is already in use'));
       process.exit(1);
       break;
     case 'ECONNRESET':
-      console.error(chalk.red.bold(getPort() + ' connection closed'));
+      console.log(chalk.red.bold(this.getPort() + ' connection closed'));
       process.exit(1);
       break;
     default:
       throw error;
   }
-}
-
-module.exports = {
-  getPort: getPort,
-  start: start,
-  stop: stop
 };
+
+module.exports = new BasicFrameworkServer();
