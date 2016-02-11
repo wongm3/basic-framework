@@ -12,10 +12,10 @@ gulp.task('styles', function() {
   gulp.src('src/core.scss')
     .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError))
     .pipe(rename('core-' + pkg.version + '.css'))
-    .pipe(gulp.dest('./css'))
+    .pipe(gulp.dest('./dist/css'))
     .pipe(cssnano())
     .pipe(rename('core-' + pkg.version + '.min.css'))
-    .pipe(gulp.dest("./css"));
+    .pipe(gulp.dest("./dist/css"));
 });
 
 gulp.task('default', function() {
